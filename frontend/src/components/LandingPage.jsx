@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import Logo from './Logo';
+import { Link } from 'react-router-dom';
 import GiftBox from './GiftBox';
 
 const LandingPageContainer = styled.div`
   background-color: #F7EBE2;
-  min-height: 100vh;
+  flex: 1;
   font-family: 'Winky Rough', sans-serif;
   position: relative;
   overflow: hidden;
@@ -35,48 +35,6 @@ const LandingPageContainer = styled.div`
   }
 `;
 
-const Nav = styled.nav`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  position: relative;
-  z-index: 10;
-`;
-
-const LogoContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const LogoText = styled.span`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-`;
-
-const NavLink = styled.a`
-  color: #333;
-  text-decoration: none;
-`;
-
-const Button = styled.button`
-  background-color: #6B9A99;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  font-family: 'Winky Rough', sans-serif;
-`;
-
 const Main = styled.main`
   display: flex;
   align-items: center;
@@ -84,6 +42,7 @@ const Main = styled.main`
   padding: 2.5rem;
   position: relative;
   z-index: 10;
+  height: 100%;
 `;
 
 const Content = styled.div`
@@ -108,28 +67,13 @@ const ButtonContainer = styled.div`
   gap: 1rem;
 `;
 
-const StartButton = styled(Button)`
+const StartButton = styled(Link)`
+  background-color: #6B9A99;
+  color: white;
   padding: 0.75rem 2rem;
   border-radius: 9999px;
-`;
-
-const OptionsContainer = styled.div`
-  margin-top: 3rem;
-  display: flex;
-  gap: 2rem;
-`;
-
-const Option = styled.div`
-  background-color: white;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const RadioInput = styled.input`
-  accent-color: #6B9A99;
+  text-decoration: none;
+  font-family: 'Winky Rough', sans-serif;
 `;
 
 const IllustrationContainer = styled.div`
@@ -142,18 +86,6 @@ const IllustrationContainer = styled.div`
 const LandingPage = () => {
   return (
     <LandingPageContainer>
-      <Nav>
-        <LogoContainer>
-          <Logo />
-          <LogoText>GIFTWHISPERER AI</LogoText>
-        </LogoContainer>
-        <NavLinks>
-          <NavLink href="#">Home</NavLink>
-          <NavLink href="#">Take Quiz</NavLink>
-          <NavLink href="#">Upload Photo</NavLink>
-          <Button>Integrate your Store</Button>
-        </NavLinks>
-      </Nav>
       <Main>
         <Content>
           <Title>
@@ -163,8 +95,8 @@ const LandingPage = () => {
             Answer a few quick questions and get beautifully tailored gift ideas..
           </Subtitle>
           <ButtonContainer>
-            <StartButton>Start Now</StartButton>
-            <StartButton>Learn More</StartButton>
+            <StartButton to="/quiz">Start Now</StartButton>
+            <StartButton to="/quiz">Learn More</StartButton>
           </ButtonContainer>
         </Content>
         <IllustrationContainer>

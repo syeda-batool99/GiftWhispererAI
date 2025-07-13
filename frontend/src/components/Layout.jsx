@@ -15,10 +15,10 @@ const MainContent = styled.main`
   flex-direction: column;
 `;
 
-const Layout = ({ children }) => {
+const Layout = ({ children, openModal }) => {
   return (
     <AppContainer>
-      <Header />
+      <Header openModal={openModal} />
       <MainContent>{children}</MainContent>
       <Footer />
     </AppContainer>

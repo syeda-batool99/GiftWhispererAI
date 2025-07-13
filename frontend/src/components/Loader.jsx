@@ -83,7 +83,7 @@ const LoadingText = styled.p`
 const Loader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers } = location.state || {};
+  const { answers, products } = location.state || {};
 
   const loadingMessages = [
     "Whispering to the gifting gods...",
@@ -95,8 +95,8 @@ const Loader = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const recommendations = await getGiftRecommendations(answers);
-        navigate('/results', { state: { recommendations } });
+        const { gifts, imageAnalysis } = await getGiftRecommendations(answers, null, products);
+        navigate('/results', { state: { recommendations: gifts, imageAnalysis } });
       } catch (error) {
         console.error("Failed to get recommendations:", error);
         navigate('/quiz'); // Go back to quiz on error
@@ -114,7 +114,7 @@ const Loader = () => {
       clearInterval(messageInterval);
       clearTimeout(fetchTimeout);
     };
-  }, [answers, navigate]);
+  }, [answers, products, navigate]);
 
   return (
     <LoaderContainer>

@@ -48,7 +48,7 @@ const Button = styled.button`
   font-family: 'Winky Rough', sans-serif;
 `;
 
-const Header = () => {
+const Header = ({ openModal }) => {
   return (
     <Nav>
       <LogoContainer>
@@ -58,7 +58,7 @@ const Header = () => {
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/quiz">Take Quiz</NavLink>
-        <Button>Integrate Your Store</Button>
+        <Button onClick={openModal}>Integrate Your Store</Button>
       </NavLinks>
     </Nav>
   );

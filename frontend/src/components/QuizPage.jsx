@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const float = keyframes`
   0% { transform: translateY(0px); }
@@ -125,6 +125,15 @@ const TextInput = styled.input`
   font-family: 'Winky Rough', sans-serif;
 `;
 
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  font-family: 'Winky Rough', sans-serif;
+  resize: vertical;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -179,6 +188,8 @@ const QuizPage = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const { products } = location.state || {};
 
   const confettiColors = ['#E6BDBA', '#6B9A99', '#F7EBE2', '#333'];
   const confettiPieces = Array.from({ length: 50 }).map((_, i) => ({
@@ -225,7 +236,7 @@ const QuizPage = () => {
   };
 
   const handleSubmit = () => {
-    navigate('/loader', { state: { answers } });
+    navigate('/loader', { state: { answers, products } });
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -244,7 +255,7 @@ const QuizPage = () => {
         <Section>
           <SectionTitle>{currentQuestion.text}</SectionTitle>
           {currentQuestion.type === 'text' ? (
-            <textarea onChange={(e) => handleTextChange(currentQuestion.id, e.target.value)} />
+            <TextArea rows="3" onChange={(e) => handleTextChange(currentQuestion.id, e.target.value)} />
           ) : (
             <PillContainer>
               {currentQuestion.options.map(opt => (

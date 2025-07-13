@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getGiftRecommendations } from '../services/api';
 
 const float = keyframes`
   0% { transform: translateY(0px); }
@@ -143,14 +144,27 @@ const SaveButton = styled(Button)`
   border: none;
 `;
 
-const BackButton = styled(Button)`
-  margin-top: 2rem;
+const BackButtonContainer = styled.div`
+  width: 100%;
+  text-align: left;
+  margin-bottom: 1rem;
+`;
+
+const BackButton = styled(Button)``;
+
+const NoMatchContainer = styled.div`
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  text-align: center;
 `;
 
 const ResultsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { recommendations } = location.state || { recommendations: [] };
+  const { recommendations, noMatch, imageAnalysis } = location.state || { recommendations: [], noMatch: false, imageAnalysis: null };
+  const [loading, setLoading] = useState(false);
 
   const confettiColors = ['#E6BDBA', '#6B9A99', '#F7EBE2', '#333'];
   const confettiPieces = Array.from({ length: 50 }).map((_, i) => ({
@@ -161,6 +175,22 @@ const ResultsPage = () => {
     duration: Math.random() * 4 + 4,
   }));
 
+  const handleGeneralSearch = async () => {
+    setLoading(true);
+    try {
+      const { gifts } = await getGiftRecommendations(location.state.answers);
+      navigate('/results', { state: { recommendations: gifts, noMatch: false, imageAnalysis: null }, replace: true });
+    } catch (error) {
+      console.error("Failed to get general recommendations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a more sophisticated loader
+  }
+
   return (
     <ResultsPageContainer>
       <ConfettiContainer>
@@ -169,10 +199,22 @@ const ResultsPage = () => {
         ))}
       </ConfettiContainer>
       <ResultsContent>
-        <div style={{ textAlign: 'left', width: '100%', marginBottom: '1rem' }}>
+        <BackButtonContainer>
           <BackButton onClick={() => navigate('/quiz')}>Back to Quiz</BackButton>
-        </div>
+        </BackButtonContainer>
         <Title>Here are {recommendations.length} thoughtful gift ideas for your loved one!</Title>
+        {noMatch && (
+          <NoMatchContainer>
+            <p>We couldn't find a suitable match from the provided store. Would you like to get some general gift ideas?</p>
+            <Button onClick={handleGeneralSearch}>Yes, get general ideas</Button>
+          </NoMatchContainer>
+        )}
+        {imageAnalysis && (
+          <div>
+            <h3>Based on the photo, we think...</h3>
+            <p>{imageAnalysis.analysis}</p>
+          </div>
+        )}
         <GiftCardContainer>
           {recommendations.map((gift, index) => (
             <GiftCard key={index}>

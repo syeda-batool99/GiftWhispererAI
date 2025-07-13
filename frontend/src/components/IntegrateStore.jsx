@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import Papa from 'papaparse';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -42,30 +42,26 @@ const Button = styled.button`
 const IntegrateStore = ({ onClose }) => {
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-    try {
-      const response = await axios.get('https://fakestoreapi.com/products');
-      const products = response.data.map(p => ({
-        name: p.title,
-        description: p.description,
-        price: p.price,
-        image: p.image,
-        link: p.id, // Using id as a stand-in for a link
-      }));
-      navigate('/quiz', { state: { products } });
-      onClose();
-    } catch (error) {
-      console.error("Failed to fetch dummy products:", error);
-      // Optionally, show an error message to the user
-    }
+  const handleSubmit = () => {
+    fetch('/src/assets/products.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            navigate('/quiz', { state: { products: results.data } });
+            onClose();
+          }
+        });
+      });
   };
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <Title>Integrate a Dummy Store</Title>
-        <p>Click the button to load products from a dummy store.</p>
-        <Button onClick={handleSubmit}>Load Dummy Products</Button>
+        <Title>Integrate Your Store</Title>
+        <p>Click the button to load products from your store.</p>
+        <Button onClick={handleSubmit}>Load Products</Button>
       </ModalContent>
     </ModalOverlay>
   );

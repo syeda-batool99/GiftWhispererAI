@@ -25,39 +25,11 @@ async function generateImage(prompt) {
 }
 
 /**
- * Analyzes an image using the Gemini API.
- * @param {string} imageBase64 - The base64 encoded image.
- * @returns {Promise<object>} A promise that resolves to an object containing the image analysis.
- */
-async function analyzeImage(imageBase64) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const prompt = "Analyze the provided image and describe the person's facial features, dressing style, and overall appearance in a short paragraph.";
-  const image = {
-    inlineData: {
-      data: imageBase64,
-      mimeType: "image/jpeg",
-    },
-  };
-
-  try {
-    const result = await model.generateContent([prompt, image]);
-    const response = await result.response;
-    const text = await response.text();
-    return { analysis: text };
-  } catch (error) {
-    console.error('Error analyzing image from Gemini:', error);
-    throw new Error('Failed to analyze image.');
-  }
-}
-
-/**
  * Generates gift recommendations using the Gemini API.
  * @param {object} quizAnswers - The answers from the user's quiz.
- * @param {object} imageAnalysis - The analysis of the uploaded image.
- * @param {Array<object>} products - The products from the user's store.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of gift recommendations.
  */
-async function getGiftRecommendations(quizAnswers, imageAnalysis = null, products = null) {
+async function getGiftRecommendations(quizAnswers) {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Destructure the quizAnswers object for clarity
@@ -80,17 +52,7 @@ async function getGiftRecommendations(quizAnswers, imageAnalysis = null, product
   let prompt = `
     You are GiftWhisperer, an expert at finding the perfect gift.
     Based on the following personality assessment and gift context, please provide 3 unique and creative gift recommendations in a JSON array format. Each object in the array should have "name", "description", and "reason" properties.
-  `;
 
-  if (products) {
-    prompt += `
-      Please select gifts exclusively from the following list of products:
-      ${JSON.stringify(products, null, 2)}
-      If no suitable match is found, return an empty array for the "gifts" key.
-    `;
-  }
-
-  prompt += `
     ---
     **Gift Context:**
     - Occasion: ${occasion}
@@ -98,16 +60,7 @@ async function getGiftRecommendations(quizAnswers, imageAnalysis = null, product
     - Gender: ${gender}
     - How long you've known them: ${knownLength}
     - Additional Info: ${additionalInfo}
-  `;
 
-  if (imageAnalysis) {
-    prompt += `
-    **Image Analysis:**
-    ${imageAnalysis.analysis}
-    `;
-  }
-
-  prompt += `
     **Personality Profile of the Recipient:**
     - Personality: ${personality?.join(', ')}
     - Spends free time: ${freeTime}
@@ -141,21 +94,16 @@ async function getGiftRecommendations(quizAnswers, imageAnalysis = null, product
       const parsed = JSON.parse(jsonString);
       const gifts = parsed.gifts || [];
 
-      if (products && gifts.length === 0) {
-        return { gifts: [], noMatch: true, imageAnalysis };
-      }
-
       // Generate images for each gift
       const giftsWithImages = await Promise.all(gifts.map(async (gift) => {
-        if (gift.image) return gift; // If image is already provided by the dummy API
         const imageUrl = await generateImage(gift.name);
         return { ...gift, image: imageUrl };
       }));
 
-      return { gifts: giftsWithImages, imageAnalysis };
+      return { gifts: giftsWithImages };
     } catch (e) {
       console.error("Failed to parse cleaned JSON:", e, "Original text:", rawText);
-      return { gifts: [], imageAnalysis: null };
+      return { gifts: [] };
     }
   } catch (error) {
     console.error('Error getting recommendations from Gemini:', error);
@@ -210,4 +158,4 @@ async function refineRecommendations(conversationHistory) {
     throw new Error('Failed to refine gift recommendations.');
   }
 }
-module.exports = { getGiftRecommendations, refineRecommendations, analyzeImage };
+module.exports = { getGiftRecommendations, refineRecommendations };

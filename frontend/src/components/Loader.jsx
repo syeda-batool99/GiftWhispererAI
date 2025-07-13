@@ -95,8 +95,8 @@ const Loader = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const { gifts, imageAnalysis } = await getGiftRecommendations(answers, null, products);
-        navigate('/results', { state: { recommendations: gifts, imageAnalysis } });
+        const { gifts, noMatch } = await getGiftRecommendations(answers, products);
+        navigate('/results', { state: { recommendations: gifts, noMatch } });
       } catch (error) {
         console.error("Failed to get recommendations:", error);
         navigate('/quiz'); // Go back to quiz on error
@@ -107,12 +107,10 @@ const Loader = () => {
       setCurrentMessageIndex(prevIndex => (prevIndex + 1) % loadingMessages.length);
     }, 2000);
 
-    // Fetch recommendations after a short delay to show the loader
-    const fetchTimeout = setTimeout(fetchRecommendations, 6000);
+    fetchRecommendations();
 
     return () => {
       clearInterval(messageInterval);
-      clearTimeout(fetchTimeout);
     };
   }, [answers, products, navigate]);
 

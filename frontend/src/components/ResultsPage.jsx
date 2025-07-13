@@ -175,16 +175,8 @@ const ResultsPage = () => {
     duration: Math.random() * 4 + 4,
   }));
 
-  const handleGeneralSearch = async () => {
-    setLoading(true);
-    try {
-      const { gifts } = await getGiftRecommendations(location.state.answers);
-      navigate('/results', { state: { recommendations: gifts, noMatch: false, imageAnalysis: null }, replace: true });
-    } catch (error) {
-      console.error("Failed to get general recommendations:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleGeneralSearch = () => {
+    navigate('/quiz', { state: { answers: location.state.answers } });
   };
 
   if (loading) {

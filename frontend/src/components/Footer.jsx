@@ -15,7 +15,7 @@ const FooterContainer = styled.footer`
 const Footer = () => {
   return (
     <FooterContainer>
-      &copy; {new Date().getFullYear()} GiftWhisperer AI
+      &copy; {new Date().getFullYear()} GiftWhispeer AI
     </FooterContainer>
   );
 };

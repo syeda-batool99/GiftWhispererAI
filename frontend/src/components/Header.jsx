@@ -11,6 +11,8 @@ const Nav = styled.nav`
   background-color: #F7EBE2;
   position: relative;
   z-index: 10;
+  border-bottom: 1px solid #E6BDBA;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 `;
 
 const LogoContainer = styled.div`
@@ -51,12 +53,11 @@ const Header = () => {
     <Nav>
       <LogoContainer>
         <Logo />
-        <LogoText>GIFTWHISPERER AI</LogoText>
+        <LogoText>GIFTWHISPEER AI</LogoText>
       </LogoContainer>
       <NavLinks>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/quiz">Take Quiz</NavLink>
-        <NavLink to="#">Upload Photo</NavLink>
         <Button>Integrate Your Store</Button>
       </NavLinks>
     </Nav>

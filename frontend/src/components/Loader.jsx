@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getGiftRecommendations } from '../services/api';
 import giftImage from '../assets/gift.png';
 
 const fadeIn = keyframes`
@@ -52,8 +54,8 @@ const ContentBox = styled.div`
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   position: relative;
   z-index: 2;
-  width: 200px;
-  height: 250px;
+  width: 400px;
+  height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -74,11 +76,15 @@ const LoadingText = styled.p`
   color: #333;
   margin: 0.5rem 0;
   opacity: 0;
-  animation: ${fadeIn} 1.5s ease-in-out forwards;
+  animation: ${fadeIn} 0.5s ease-in-out forwards;
   animation-delay: ${props => props.delay}s;
 `;
 
 const Loader = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { answers } = location.state || {};
+
   const loadingMessages = [
     "Whispering to the gifting gods...",
     "Checking what makes them smile...",
@@ -87,22 +93,37 @@ const Loader = () => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const recommendations = await getGiftRecommendations(answers);
+        navigate('/results', { state: { recommendations } });
+      } catch (error) {
+        console.error("Failed to get recommendations:", error);
+        navigate('/quiz'); // Go back to quiz on error
+      }
+    };
+
+    const messageInterval = setInterval(() => {
       setCurrentMessageIndex(prevIndex => (prevIndex + 1) % loadingMessages.length);
     }, 2000);
-    return () => clearInterval(interval);
-  }, [loadingMessages.length]);
+
+    // Fetch recommendations after a short delay to show the loader
+    const fetchTimeout = setTimeout(fetchRecommendations, 6000);
+
+    return () => {
+      clearInterval(messageInterval);
+      clearTimeout(fetchTimeout);
+    };
+  }, [answers, navigate]);
 
   return (
     <LoaderContainer>
       <ContentBox>
         <GiftImage src={giftImage} alt="Gift Box" />
         <LoadingTextContainer>
-          {loadingMessages.map((msg, index) => (
-            <LoadingText key={index} delay={0} style={{ display: index === currentMessageIndex ? 'block' : 'none' }}>
-              {msg}
-            </LoadingText>
-          ))}
+          <LoadingText delay={0}>
+            {loadingMessages[currentMessageIndex]}
+          </LoadingText>
         </LoadingTextContainer>
       </ContentBox>
     </LoaderContainer>

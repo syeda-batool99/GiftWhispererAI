@@ -4,13 +4,14 @@ const { getGiftRecommendations, refineRecommendations } = require('../services/g
 
 router.post('/recommendations', async (req, res) => {
   try {
-    const { answers, requestBundle, feelings } = req.body;
-    const recommendations = await getGiftRecommendations(answers, requestBundle, feelings);
+    const { answers } = req.body;
+    const recommendations = await getGiftRecommendations(answers);
     res.json(recommendations);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 router.post('/chat', async (req, res) => {
   try {
     const { conversationHistory } = req.body;

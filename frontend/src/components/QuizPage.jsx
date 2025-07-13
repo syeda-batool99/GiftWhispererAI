@@ -80,8 +80,15 @@ const Title = styled.h1`
   font-size: 2rem;
   font-weight: bold;
   color: #333;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   text-align: center;
+`;
+
+const QuestionCounter = styled.p`
+  font-size: 1rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 2rem;
 `;
 
 const Section = styled.div`
@@ -126,29 +133,46 @@ const ButtonContainer = styled.div`
 
 const Button = styled.button`
   background-color: #E6BDBA;
-  color: white;
+  color: #333;
   padding: 0.75rem 2rem;
   border-radius: 9999px;
   border: none;
   cursor: pointer;
   font-family: 'Winky Rough', sans-serif;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #d4a9a7;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
 `;
 
 const SubmitButton = styled(Button)`
   background-color: #6B9A99;
+
+  &:hover {
+    background-color: #5a8a89;
+  }
 `;
 
 const questions = [
-    { id: 1, text: "How would you describe their personality? (Select up to 3 tags)", type: 'multi', options: ['Creative', 'Practical', 'Funny', 'Thoughtful', 'Outgoing', 'Quiet', 'Adventurous', 'Sentimental'] },
-    { id: 2, text: "How do they usually spend their free time?", type: 'single', options: ['Reading or watching shows', 'Traveling and exploring', 'Creating (art, music, crafts)', 'Playing video games or tech stuff', 'Hanging out with friends', 'Relaxing solo at home'] },
-    { id: 3, text: "What’s their communication style like?", type: 'single', options: ['Very expressive and chatty', 'Warm but reserved', 'Mostly quiet and observant', 'Deep and thoughtful'] },
-    { id: 4, text: "How do they usually dress?", type: 'single', options: ['Trendy and bold', 'Minimal and clean', 'Comfy and casual', 'Artsy or unique', 'Professional/formal'] },
-    { id: 5, text: "What makes them smile the most?", type: 'single', options: ['Surprises', 'Inside jokes', 'Thoughtful gestures', 'Tech or gadgets', 'A beautiful book, piece of art, or quote'] },
-    { id: 6, text: "How do they feel about gifts?", type: 'single', options: ['They love practical stuff they’ll use', 'They like personalized or handmade gifts', 'They enjoy fun or novelty items', 'They appreciate luxury or premium gifts'] },
-    { id: 7, text: "If they had a free weekend, what would they most likely do?", type: 'single', options: ['Explore a new city', 'Stay home and binge a show', 'Work on a personal project', 'Visit friends or family', 'Go on a nature walk or hike'] },
-    { id: 8, text: "What’s their aesthetic or vibe?", type: 'single', options: ['Minimalist', 'Cozy', 'Bright and fun', 'Natural/earthy', 'Sleek and modern'] },
-    { id: 9, text: "If they were a color, what would they be?", type: 'single', options: ['Warm beige', 'Bold red', 'Ocean blue', 'Sunset orange', 'Forest green', 'Soft lavender'] },
-    { id: 10, text: "How long have you known them?", type: 'text' }
+    { id: 1, text: "For what occasion?", type: 'single', options: ['Birthday', 'Anniversary', 'Engagement', 'New Baby', 'Housewarming', 'Graduation', 'Retirement'] },
+    { id: 2, text: "Your Relationship", type: 'single', options: ['Parent', 'Friend', 'Colleague', 'Spouse', 'Sibling'] },
+    { id: 3, text: "What is their gender?", type: 'single', options: ['Male', 'Female'] },
+    { id: 4, text: "How would you describe their personality? (Select up to 3 tags)", type: 'multi', options: ['Creative', 'Practical', 'Funny', 'Thoughtful', 'Outgoing', 'Quiet', 'Adventurous', 'Sentimental'] },
+    { id: 5, text: "How do they usually spend their free time?", type: 'single', options: ['Reading or watching shows', 'Traveling and exploring', 'Creating (art, music, crafts)', 'Playing video games or tech stuff', 'Hanging out with friends', 'Relaxing solo at home'] },
+    { id: 6, text: "What’s their communication style like?", type: 'single', options: ['Very expressive and chatty', 'Warm but reserved', 'Mostly quiet and observant', 'Deep and thoughtful'] },
+    { id: 7, text: "What makes them smile the most?", type: 'single', options: ['Surprises', 'Inside jokes', 'Thoughtful gestures', 'Tech or gadgets', 'A beautiful book, piece of art, or quote'] },
+    { id: 8, text: "How do they feel about gifts?", type: 'single', options: ['They love practical stuff they’ll use', 'They like personalized or handmade gifts', 'They enjoy fun or novelty items', 'They appreciate luxury or premium gifts'] },
+    { id: 9, text: "If they had a free weekend, what would they most likely do?", type: 'single', options: ['Explore a new city', 'Stay home and binge a show', 'Work on a personal project', 'Visit friends or family', 'Go on a nature walk or hike'] },
+    { id: 10, text: "What’s their aesthetic or vibe?", type: 'single', options: ['Minimalist', 'Cozy', 'Bright and fun', 'Natural/earthy', 'Sleek and modern'] },
+    { id: 11, text: "If they were a color, what would they be?", type: 'single', options: ['Warm beige', 'Bold red', 'Ocean blue', 'Sunset orange', 'Forest green', 'Soft lavender'] },
+    { id: 12, text: "How long have you known them?", type: 'text' },
+    { id: 13, text: "Any additional information?", type: 'text' }
 ];
 
 const QuizPage = () => {
@@ -196,15 +220,16 @@ const QuizPage = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     } else {
-      window.history.back();
+      navigate('/');
     }
   };
 
   const handleSubmit = () => {
-    navigate('/loader');
+    navigate('/loader', { state: { answers } });
   };
 
   const currentQuestion = questions[currentQuestionIndex];
+  const isAnswered = answers[currentQuestion.id] && (currentQuestion.type !== 'multi' || answers[currentQuestion.id].length > 0);
 
   return (
     <QuizPageContainer>
@@ -215,10 +240,11 @@ const QuizPage = () => {
       </ConfettiContainer>
       <QuizForm>
         <Title>Tell us about them!</Title>
+        <QuestionCounter>Question {currentQuestionIndex + 1} of {questions.length}</QuestionCounter>
         <Section>
           <SectionTitle>{currentQuestion.text}</SectionTitle>
           {currentQuestion.type === 'text' ? (
-            <TextInput onChange={(e) => handleTextChange(currentQuestion.id, e.target.value)} />
+            <textarea onChange={(e) => handleTextChange(currentQuestion.id, e.target.value)} />
           ) : (
             <PillContainer>
               {currentQuestion.options.map(opt => (
@@ -236,9 +262,9 @@ const QuizPage = () => {
         <ButtonContainer>
           <Button onClick={handleBack}>Back</Button>
           {currentQuestionIndex < questions.length - 1 ? (
-            <Button onClick={handleNext}>Next</Button>
+            <Button onClick={handleNext} disabled={!isAnswered}>Next</Button>
           ) : (
-            <SubmitButton onClick={handleSubmit}>Get my gift ideas</SubmitButton>
+            <SubmitButton onClick={handleSubmit} disabled={!isAnswered}>Get my gift ideas</SubmitButton>
           )}
         </ButtonContainer>
       </QuizForm>
